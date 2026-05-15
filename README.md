@@ -168,7 +168,7 @@ Chatbot displays movie recommendations
 
 ## 🎭 Built With
 
-Too much coffee, three AI models running simultaneously, and a genuine frustration with decision paralysis on Friday nights.
+Too much coffee, three AI models running simultaneously, and a genuine frustration with decision paralysis on Sunday nights.
 
 ---
 
