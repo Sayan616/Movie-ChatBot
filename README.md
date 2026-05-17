@@ -14,17 +14,53 @@ CineBot is tired of you scrolling Netflix for 45 minutes and watching nothing. S
 
 ## 🧠 What Makes It Different
 
-This isn't your average "just filter by genre" recommender. CineBot runs **7 AI-powered search modes**, each smarter than the last:
+Just type anything — CineBot figures out what you mean automatically.
 
+> Type *"Brad Pitt"* → Actor Search
+> Type *"I feel sad"* → Mood Search
+> Type *"space adventure"* → AI Theme Search
+> Type *"Inception"* → Similar Movies
+> Type *"Tom Hanks comedy"* → Smart Search
+
+No buttons. No dropdowns. Just type.
+
+---
+
+## ✨ Features
+
+### 7 AI-Powered Search Modes
 | Mode | What It Does |
 |------|-------------|
 | 🎭 By Actor | Every film a star has touched, ranked by popularity |
-| 🎞️ By Genre | Classic but fast |
-| 😊 By Mood | Detects your *actual* emotion using NLP — not just what you say |
+| 🎞️ By Genre | Fast genre filtering with slang support ("scary" → Horror) |
+| 😊 By Mood | Detects your actual emotion using NLP — not just what you say |
 | 🔍 Pure AI Theme | Finds films by meaning — *"loyal dog in space"* just works |
 | ⚡ Hybrid Theme | Balances AI relevance with real-world popularity |
 | 🎯 Similar Movies | Content-based filtering using TF-IDF cosine similarity |
-| 🧠 Smart Search | Type *"Brad Pitt thriller"* — it figures out the rest |
+| 🧠 Smart Search | Combines actor + genre detection in one query |
+
+### ✨ Auto-Detect Mode
+Type anything freely — CineBot uses AI to automatically detect whether you're searching by actor, genre, mood, theme, or movie title. No mode selection needed.
+
+**Detection priority:**
+1. Actor + Genre together → Smart Search
+2. Person name (NER) → Actor Search
+3. Genre keyword → Genre Search
+4. Known movie title (fuzzy match) → Similar Movies
+5. Strong emotion → Mood Search
+6. Default → Hybrid Theme Search
+
+### 🎙️ Voice Search
+Click the microphone button and speak your query. Works in Chrome and Edge.
+
+### ⬇️ PDF Export
+Download your entire conversation as a beautifully formatted PDF with chat bubbles, movie lists, and page numbers.
+
+### 🔍 TMDB Fallback
+If no results are found in the local database, CineBot automatically searches TMDB's live movie database and shows results with a teal badge.
+
+### ⚡ Shortcuts
+Collapse/expand mode chips for precision searches when you need a specific mode.
 
 ---
 
@@ -46,6 +82,7 @@ This isn't your average "just filter by genre" recommender. CineBot runs **7 AI-
 |------|------|
 | `React 19 + Vite` | Fast, modern UI |
 | `Bootstrap 5` | Layout & utilities |
+| `jsPDF` | PDF export |
 | Custom CSS | Cinematic dark theme with film grain & amber accents |
 
 ---
@@ -53,18 +90,22 @@ This isn't your average "just filter by genre" recommender. CineBot runs **7 AI-
 ## 📁 Project Structure
 
 ```
-cinebot/
+Movie-ChatBot/
 │
-├── app.py                   # Flask API + UnifiedMovieSystem class
-├── tmdb_5000_movies.csv     # Movie metadata
-├── tmdb_5000_credits.csv    # Cast data
+├── app.py                      # Flask API + all routes
+├── unified_movie_system.py     # AI backend class
+├── tmdb_5000_movies.csv        # Movie metadata
+├── tmdb_5000_credits.csv       # Cast data
+├── .devcontainer/
+│   └── devcontainer.json       # Codespaces port config
 │
-└── Movie-ChatBot/           # React frontend
+└── movie-chatbot/              # React frontend
     ├── src/
-    │   ├── App.jsx          # Chatbot UI + all logic
-    │   ├── App.css          # Cinematic dark theme
-    │   ├── main.jsx         # Entry point
-    │   └── index.css        # Global reset
+    │   ├── App.jsx             # Chatbot UI + all logic
+    │   ├── App.css             # Cinematic dark theme
+    │   ├── main.jsx            # Entry point
+    │   └── index.css           # Global reset
+    ├── .env                    # API URL config
     ├── vite.config.js
     └── package.json
 ```
@@ -73,102 +114,112 @@ cinebot/
 
 ## 🚀 Getting Started
 
-### 1. Clone the repo
+### Running Locally (Recommended)
+
+**1. Clone the repo**
 ```bash
 git clone https://github.com/Sayan616/cinebot.git
-cd cinebot
+cd Movie-ChatBot
 ```
 
-### 2. Install Python dependencies
+**2. Install Python dependencies**
 ```bash
-pip install flask flask-cors torch transformers sentence-transformers rapidfuzz pandas scikit-learn
+pip install flask flask-cors torch transformers sentence-transformers rapidfuzz pandas scikit-learn requests
 ```
 
-### 3. Add your dataset files
-Place these two CSV files in the root folder:
+**3. Add your dataset files** in the root folder:
 - `tmdb_5000_movies.csv`
 - `tmdb_5000_credits.csv`
 
 > Download from [Kaggle — TMDB 5000 Movie Dataset](https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata)
 
-### 4. Start the Flask backend
+**4. Start the Flask backend**
 ```bash
 # Terminal 1
 python app.py
 ```
-You should see:
-```
-✅ CineBot API running at http://localhost:5000
-```
 
-### 5. Start the React frontend
+**5. Start the React frontend**
 ```bash
 # Terminal 2
-cd Movie-ChatBot
+cd movie-chatbot
 npm install
 npm run dev
 ```
 
-### 6. Open your browser
+**6. Open your browser**
 ```
 http://localhost:5173
 ```
 
 ---
 
+### Running on GitHub Codespaces
+
+Ports are automatically set to public via `.devcontainer/devcontainer.json`.
+
+**Terminal 1 — Flask:**
+```bash
+python app.py
+```
+
+**Terminal 2 — React:**
+```bash
+cd movie-chatbot
+echo "VITE_API_URL=https://YOUR-CODESPACE-NAME-5000.app.github.dev" > .env
+npm run dev
+```
+
+Replace `YOUR-CODESPACE-NAME` with your actual Codespaces URL from the Ports tab.
+
+---
+
 ## ⚡ First Run Note
 
-The first launch takes **2–3 minutes** to compute AI embeddings for all 4,800 movies. After that, everything is cached locally (`embeddings.pkl`, `similarity_matrix.pkl`) and starts **instantly** on every run after.
+The first launch takes **2–3 minutes** to compute AI embeddings for all 4,800 movies. After that, everything is cached locally and starts **instantly** on every run after.
+
+Cached files:
+- `movie_df.pkl` — processed movie data
+- `embeddings.pkl` — AI semantic vectors
+- `similarity_matrix.pkl` — TF-IDF similarity scores
 
 ---
 
-## 🖥️ Running on GitHub Codespaces?
+## 🔑 Optional: TMDB API Key
 
-Add this to `vite.config.js` to fix the API connection:
-
-```js
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      '/api': 'http://localhost:5000'
-    }
-  }
-})
-```
-
-And change this line in `App.jsx`:
-```js
-// FROM
-const API_BASE = 'http://localhost:5000/api'
-
-// TO
-const API_BASE = '/api'
+To enable live TMDB fallback search, get a free API key:
+1. Go to [themoviedb.org](https://www.themoviedb.org) → Sign up
+2. Settings → API → copy your API Key (v3)
+3. Paste it in `app.py`:
+```python
+TMDB_API_KEY = "your_key_here"
 ```
 
 ---
 
-## 💡 How It Works
+## 💡 How Auto-Detect Works
 
 ```
-User types a query
-       ↓
-React frontend sends POST request to Flask API
-       ↓
-Flask routes to the correct search method
-       ↓
-AI model processes the query (emotion / semantic / NER)
-       ↓
-Results ranked by relevance + popularity
-       ↓
-Chatbot displays movie recommendations
+User types anything
+        ↓
+Genre keyword check (dictionary lookup)
+        ↓
+Actor name extraction (BERT NER model)
+        ↓
+Movie title fuzzy match (RapidFuzz ≥78%)
+        ↓
+Emotion detection (DistilRoBERTa >55% confidence)
+        ↓
+Default: Hybrid Theme Search
+        ↓
+If empty → TMDB Live Fallback
 ```
 
 ---
 
 ## 🎭 Built With
 
-Too much coffee, three AI models running simultaneously, and a genuine frustration with decision paralysis on Sunday nights.
+Too much coffee, three AI models running simultaneously, and a genuine frustration with decision paralysis on Friday nights.
 
 ---
 
