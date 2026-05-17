@@ -1,0 +1,14 @@
+{
+  "name": "CineBot",
+  "forwardPorts": [5000, 5173],
+  "portsAttributes": {
+    "5000": {
+      "visibility": "public",
+      "label": "Flask API"
+    },
+    "5173": {
+      "visibility": "public",
+      "label": "React App"
+    }
+  }
+}
